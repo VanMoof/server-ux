@@ -371,7 +371,7 @@ ul.auto-toc {
 <p>This module lets you define global date ranges that can be used to filter
 your values in tree views.</p>
 <p>It also provides a mixin model for developers that extends the model’s search
-view so that date ranges can be search as any relational field.</p>
+view so that date ranges can be searched as any relational field.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -413,6 +413,14 @@ on a field with a different name, you can set a property on your model:</p>
 <pre class="code literal-block">
 _date_range_search_field = &quot;invoice_date&quot;
 </pre>
+<p>By default, the field when read will contain a falsy value, but you can set
+a code to specify if date ranges from a specific date range type should be
+assigned:</p>
+<pre class="code literal-block">
+_date_range_assign_type_code = &quot;fiscal_years&quot;
+</pre>
+<p>This should correspond with the code of a date range type that does not have
+a company set.</p>
 </div>
 <div class="section" id="usage">
 <h1><a class="toc-backref" href="#id3">Usage</a></h1>

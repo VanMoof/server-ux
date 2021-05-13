@@ -19,7 +19,7 @@ class TestDateRangeearchMixin(SavepointCase):
         cls.loader.update_registry((TestDateRangeSearchMixin,))
 
         cls.env.user.lang = "en_US"
-        rtype = cls.env['date.range.type'].create(
+        cls.rtype = cls.env['date.range.type'].create(
             {'name': __name__,
              'company_id': False,
              'allow_overlap': False}
@@ -27,13 +27,13 @@ class TestDateRangeearchMixin(SavepointCase):
         cls.env['date.range.generator'].create(
             {'date_start': '1943-01-01',
              'name_prefix': '1943-',
-             'type_id': rtype.id,
+             'type_id': cls.rtype.id,
              'duration_count': 3,
              'unit_of_time': MONTHLY,
              'count': 4}
         ).action_apply()
         cls.ranges = cls.env['date.range'].search(
-            [('type_id', '=', rtype.id)])
+            [('type_id', '=', cls.rtype.id)])
         cls.model = cls.env[TestDateRangeSearchMixin._name]
 
     @classmethod
@@ -167,9 +167,16 @@ class TestDateRangeearchMixin(SavepointCase):
         )
 
     def test_03_read(self):
-        """Read returns a falsy value"""
-        record = self.model.create({"test_date": "1943-04-05"})
-        self.assertFalse(record.date_range_search_id)
+        """Read returns a value based on the configured type code"""
+        record1 = self.model.create({"test_date": "1943-01-01"})
+        record2 = self.model.create({"test_date": "1943-12-31"})
+        self.assertFalse(record1.date_range_search_id)
+        self.env.cache.invalidate()
+        self.rtype.code = "test_code"
+        # Test assigning multiple records at once
+        (record1 + record2).mapped("date_range_search_id")
+        self.assertEqual(record1.date_range_search_id, self.ranges[0])
+        self.assertEqual(record2.date_range_search_id, self.ranges[3])
 
     def test_04_load_views(self):
         """Technical field label is replaced in `load_views`"""

@@ -14,6 +14,7 @@ class DateRangeType(models.Model):
         return self.env['res.company']._company_default_get('date.range')
 
     name = fields.Char(required=True, translate=True)
+    code = fields.Char()
     allow_overlap = fields.Boolean(
         help="If sets date range of same type must not overlap.",
         default=False)
@@ -27,7 +28,9 @@ class DateRangeType(models.Model):
 
     _sql_constraints = [
         ('date_range_type_uniq', 'unique (name,company_id)',
-         'A date range type must be unique per company !')]
+         'A date range type must be unique per company !'),
+        ('date_range_type_uniq_code', 'unique (code)',
+         'A date range type with this code already exists.')]
 
     @api.constrains('company_id')
     def _check_company_id(self):
