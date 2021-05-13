@@ -36,6 +36,7 @@
         <field name="arch" type="xml">
             <tree editable="bottom" string="Date range type">
                 <field name="name"/>
+                <field name="code"/>
                 <field name="allow_overlap"/>
                 <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                 <field name="active"/>
@@ -49,6 +50,7 @@
             <form string="Date Range Type">
                 <group col="4">
                     <field name="name"/>
+                    <field name="code"/>
                     <field name="allow_overlap"/>
                     <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                     <field name="active"/>

@@ -22,3 +22,14 @@ on a field with a different name, you can set a property on your model:
 .. code-block::
 
    _date_range_search_field = "invoice_date"
+
+By default, the field when read will contain a falsy value, but you can set
+a code to specify if date ranges from a specific date range type should be
+assigned:
+
+.. code-block::
+
+   _date_range_assign_type_code = "fiscal_years"
+
+This should correspond with the code of a date range type that does not have
+a company set.
