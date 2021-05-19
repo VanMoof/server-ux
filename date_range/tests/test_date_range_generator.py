@@ -37,7 +37,7 @@ class DateRangeGeneratorTest(TransactionCase):
             'name_prefix': '1943-',
             'type_id': self.type.id,
             'duration_count': 3,
-            'unit_of_time': MONTHLY,
+            'unit_of_time': str(MONTHLY),
             'count': 4})
         generator.action_apply()
         ranges = self.env['date.range'].search(
@@ -54,7 +54,7 @@ class DateRangeGeneratorTest(TransactionCase):
             'name_prefix': '1943-',
             'type_id': self.typeB.id,
             'duration_count': 3,
-            'unit_of_time': MONTHLY,
+            'unit_of_time': str(MONTHLY),
             'count': 4,
             'company_id': self.company.id,
         })
@@ -70,7 +70,7 @@ class DateRangeGeneratorTest(TransactionCase):
                 'name_prefix': '1943-',
                 'type_id': self.typeB.id,
                 'duration_count': 3,
-                'unit_of_time': MONTHLY,
+                'unit_of_time': str(MONTHLY),
                 'count': 4,
                 'company_id': self.company_2.id,
             })
