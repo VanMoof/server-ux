@@ -5,8 +5,8 @@ import datetime
 
 from dateutil.rrule import MONTHLY
 
-from odoo.exceptions import ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.exceptions import UserError, ValidationError
+from odoo.tests.common import Form, TransactionCase
 
 
 class DateRangeGeneratorTest(TransactionCase):
@@ -37,7 +37,7 @@ class DateRangeGeneratorTest(TransactionCase):
             'name_prefix': '1943-',
             'type_id': self.type.id,
             'duration_count': 3,
-            'unit_of_time': MONTHLY,
+            'unit_of_time': str(MONTHLY),
             'count': 4})
         generator.action_apply()
         ranges = self.env['date.range'].search(
@@ -54,7 +54,7 @@ class DateRangeGeneratorTest(TransactionCase):
             'name_prefix': '1943-',
             'type_id': self.typeB.id,
             'duration_count': 3,
-            'unit_of_time': MONTHLY,
+            'unit_of_time': str(MONTHLY),
             'count': 4,
             'company_id': self.company.id,
         })
@@ -70,7 +70,49 @@ class DateRangeGeneratorTest(TransactionCase):
                 'name_prefix': '1943-',
                 'type_id': self.typeB.id,
                 'duration_count': 3,
-                'unit_of_time': MONTHLY,
+                'unit_of_time': str(MONTHLY),
                 'count': 4,
                 'company_id': self.company_2.id,
             })
+
+    def test_generator_form(self):
+        """Test validation and onchange functionality"""
+        form = Form(self.env["date.range.generator"])
+        form.type_id = self.type
+        form.unit_of_time = str(MONTHLY)
+        form.duration_count = 10
+        form.date_end = "2021-01-01"
+        # Setting count clears date_end
+        form.count = 10
+        self.assertFalse(form.date_end)
+        # Setting date_end clears count
+        form.date_end = "2021-01-01"
+        self.assertFalse(form.count)
+        form.name_prefix = "PREFIX"
+        # Setting name_expr clears name_prefix
+        form.name_expr = "'PREFIX%s' % index"
+        self.assertFalse(form.name_prefix)
+        wizard = form.save()
+        # test_name_expr() throws an example of a generated name
+        with self.assertRaisesRegex(UserError, "PREFIX"):
+            wizard.test_name_expr()
+
+        # Cannot generate ranges without count and without date_end
+        wizard.date_end = False
+        wizard.count = False
+        with self.assertRaisesRegex(
+                ValidationError, "end date.*number of ranges"):
+            wizard.action_apply()
+
+        wizard.count = 10
+        # Cannot generate ranges with an invalid name_expr
+        wizard.name_expr = "'not valid"
+        with self.assertRaisesRegex(
+                ValidationError, "Invalid name expression"):
+            wizard.action_apply()
+
+        # Cannot generate ranges without a prefix and without an expression
+        wizard.name_expr = False
+        wizard.name_prefix = False
+        with self.assertRaisesRegex(ValidationError, "prefix.*expression"):
+            wizard.action_apply()
